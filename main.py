@@ -70,16 +70,4 @@ def handle_message(message):
     else:
         bot.send_message(message.chat.id, "خطا! لینک معتبری وارد نکرده اید.")
 
-@bot.message_handler(commands=["setprivacy"])
-def set_privacy(message):
-    privacy = message.text
-    if privacy == "public":
-        bot.set_privacy("public")
-        bot.send_message(message.chat.id, "حالا ربات برای همه قابل مشاهده است.")
-    elif privacy == "private":
-        bot.set_privacy("private")
-        bot.send_message(message.chat.id, "حالا ربات فقط برای کاربرانی که شما را دنبال می کنند قابل مشاهده است.")
-    else:
-        bot.send_message(message.chat.id, "لطفاً یک حریم خصوصی معتبر وارد کنید.")
-
 bot.polling()
