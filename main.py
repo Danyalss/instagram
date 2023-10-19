@@ -7,7 +7,10 @@ bot = telebot.TeleBot("6583320212:AAHGM6UqfTdHoZjLDmr4RTkTglwpMhwx4N4")
 def get_media_info(media_url):
     response = requests.get(media_url)
     if response.status_code == 200:
-        data = json.loads(response.content)
+        try:
+            data = json.loads(response.content)
+        except json.decoder.JSONDecodeError:
+            return None
 
         if data["media_type"] == "IMAGE":
             return data
@@ -63,11 +66,7 @@ def start(message):
 @bot.message_handler(content_types=["text"])
 def handle_message(message):
     media_url = message.text
-    media_info = get_media_info(media_url)
-    if media_info is not None:
-        download_media(media_info)
-        bot.send_message(message.chat.id, "محتوا با موفقیت دانلود شد.")
-    else:
-        bot.send_message(message.chat.id, "خطا! لینک معتبری وارد نکرده اید.")
-
-bot.polling()
+    try:
+        media_info = get_media_info(media_url)
+    except Exception:
+        bot.send_message(message.chat.id, "خطا! مشکلی
