@@ -73,8 +73,8 @@ def handle_message(message):
         return
 
     if media_info["media_type"] == "IMAGE":
-            with open(media_info["media_type"] + ".jpg", "wb") as f:
-                f.write(requests.get(media_info["media_url"]).content)
+        with open(media_info["media_type"] + ".jpg", "wb") as f:
+            f.write(requests.get(media_info["media_url"]).content)
 
 
 @bot.message_handler(commands=["download_image"])
