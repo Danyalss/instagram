@@ -61,7 +61,7 @@ def download_media(media_info):
 
 @bot.message_handler(commands=["start"])
 def start(message):
-    bot.send_message(message.chat.id, "سلام! من ربات دانلود ریلز و استوری و پست اینستاگرام هستم. برای دانلود محتوا، لینک آن را به من ارسال کنید.")
+    bot.send_message(message.chat_id, "سلام! من ربات دانلود ریلز و استوری و پست اینستاگرام هستم. برای دانلود محتوا، لینک آن را به من ارسال کنید.")
 
 @bot.message_handler(content_types=["text"])
 def handle_message(message):
@@ -69,11 +69,114 @@ def handle_message(message):
     try:
         media_info = get_media_info(media_url)
     except Exception:
-        bot.send_message(message.chat.id, "خطا! مشکلی در دانلود محتوا رخ داد.")
+        bot.send_message(message.chat_id, "خطا! مشکلی در دانلود محتوا رخ داد.")
+        return
+
+    if media_info["media_type"] == "IMAGE":
+            with open(media_info["media_type"] + ".jpg", "wb") as f:
+                f.write(requests.get(media_info["media_url"]).content)
+
+
+@bot.message_handler(commands=["download_image"])
+def download_image(message):
+    media_url = message.text
+    try:
+        media_info = get_media_info(media_url)
+    except Exception:
+        bot.send_message(message.chat_id, "خطا! مشکلی در دانلود محتوا رخ داد.")
         return
 
     if media_info is not None:
         download_media(media_info)
-        bot.send_message(message.chat.id, "محتوا با موفقیت دانلود شد.")
+        bot.send_message(message.chat_id, "خطا! مشکلی در دانلود محتوا رخ داد.")
+
+@bot.message_handler(commands=["download_story"])
+def download_story(message):
+    media_url = message.text
+    try:
+        media_info = get_media_info(media_url)
+    except Exception:
+        bot.send_message(message.chat_id, "خطا! مشکلی در دانلود محتوا رخ داد.")
+        return
+
+    if media_info is not None:
+        if media_info["media_type"] == "STORY":
+            download_media(media_info)
+            bot.send_message(message.chat_id, "داستان با موفقیت دانلود شد.")
+        else:
+            bot.send_message(message.chat_id, "لینک ارسال شده یک داستان نیست.")
+
+
+
+    if media_info is not None:
+        download_media(media_info)
+        bot.send_message(message.chat_id, "محتوا با موفقیت دانلود شد.")
+
+@bot.message_handler(commands=["save_to_folder"])
+def save_to_folder(message):
+    media_url = message.text
+    try:
+        media_info = get_media_info(media_url)
+    except Exception:
+        bot.send_message(message.chat_id, "خطا! مشکلی در دانلود محتوا رخ داد.")
+        return
+
+    if media_info is not None:
+        download_media(media_info)
+        file_type = media_info["media_type"]
+        file_name = file_type + ".mp4"
+        file_path = f"/path/to/folder/{file_name}"
+        with open(file_path, "wb") as f:
+            f.write(requests.get(media_info["media_url"]).content)
+        bot.send_message(message.chat_id, f"محتوا با موفقیت در پوشه {file_path} ذخیره شد.")
+
+@bot.message_handler(commands=["send_to_chat"])
+def send_to_chat(message):
+    media_url = message.text
+    try:
+        media_info = get_media_info(media_url)
+    except Exception:
+        bot.send_message(message.chat_id, "خطا! مشکلی در دانلود محتوا رخ داد.")
+        return
+
+    if media_info is not None:
+        download_media(media_info)
+        chat_id = message.text
+        bot.send_message(chat_id, "محتوا با موفقیت ارسال شد.")
+
+@bot.message_handler(commands=["send_notification"])
+def send_notification(message):
+    bot.send_message(message.chat_id, "فیلم با موفقیت دانلود شد.")
+
+@bot.message_handler(commands=["help"])
+def help(message):
+    help_text = """
+    **راهنمای استفاده از ربات دانلود ریلز و استوری و پست اینستاگرام:**
+
+    * برای دانلود یک فیلم، دستور `download` را به همراه لینک فیلم ارسال کنید.
+    * برای دانلود یک تصویر، دستور `download_image` را به همراه لینک تصویر ارسال کنید.
+    * برای ذخیره یک فیلم در یک پوشه خاص، دستور `save_to_folder` را به همراه لینک فیلم و مسیر پوشه را ارسال کنید.
+    * برای ارسال یک فیلم به مخاطبین یا گروه های خاص، دستور `send_to_chat` را به همراه لینک فیلم و ID مخاطب یا گروه را ارسال کنید.
+    * برای دریافت اعلان زمانی که فیلمی با موفقیت دانلود شد، دستور `send_notification` را ارسال کنید.
+
+    **مثال ها:**
+
+    * برای دانلود یک فیلم:
+
+        `/download https://www.instagram.com/p/Cd4X--_r7t9/`
+
+    * برای دانلود یک تصویر:
+
+        `/download_image https://www.instagram.com/p/Cd4X--_r7t9/`
+
+    * برای ذخیره یک فیلم در پوشه `/downloads`:
+
+        `/save_to_folder https://www.instagram.com/p/Cd4X--_r7t9/ /downloads`
+
+    * برای ارسال یک فیلم به مخاطب با ID `1234567890`:
+
+        `/send_to_chat https://www.instagram.com/p/Cd4X--_r7t9/ 1234567890`
+    """
+    bot.send_message(message.chat_id, help_text)
 
 bot.polling()
