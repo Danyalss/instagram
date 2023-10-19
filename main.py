@@ -69,4 +69,11 @@ def handle_message(message):
     try:
         media_info = get_media_info(media_url)
     except Exception:
-        bot.send_message(message.chat.id, "خطا! مشکلی
+        bot.send_message(message.chat.id, "خطا! مشکلی در دانلود محتوا رخ داد.")
+        return
+
+    if media_info is not None:
+        download_media(media_info)
+        bot.send_message(message.chat.id, "محتوا با موفقیت دانلود شد.")
+
+bot.polling()
