@@ -45,19 +45,20 @@ def download_media(media_info):
 
     if file_type == "IMAGE":
         with open(file_type + ".jpg", "wb") as f:
-            f.write(requests.get(file_url).content)
+            f.write(requests.get(media_info["media_url"]).content)
     elif file_type == "VIDEO":
         with open(file_type + ".mp4", "wb") as f:
-            f.write(requests.get(file_url).content)
+            f.write(requests.get(media_info["media_url"]).content)
     elif file_type == "REELS":
         with open(file_type + ".mp4", "wb") as f:
-            f.write(requests.get(file_url).content)
+            f.write(requests.get(media_info["media_url"]).content)
     elif file_type == "STORY":
         with open(file_type + ".jpg", "wb") as f:
-            f.write(requests.get(file_url).content)
+            f.write(requests.get(media_info["media_url"]).content)
     elif file_type == "IGTV":
         with open(file_type + ".mp4", "wb") as f:
-            f.write(requests.get(file_url).content)
+            f.write(requests.get(media_info["media_url"]).content)
+
 
 @bot.message_handler(commands=["start"])
 def start(message):
