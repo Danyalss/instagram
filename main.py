@@ -4,7 +4,7 @@ import telebot
 import time
 
 # اطلاعات ربات را تعریف کنیم
-bot = telebot.TeleBot("6583320212:AAHGM6UqfTdHoZjLDmr4RTkTglwpMhwx4N4")
+bot = telebot.TeleBot("YOUR_BOT_TOKEN")
 
 # تابع برای دریافت اطلاعات رسانه را تعریف کنیم
 def get_media_info(media_url):
@@ -23,37 +23,32 @@ def download_media(media_info):
 
     if file_type == "IMAGE":
         with open(file_type + ".jpg", "wb") as f:
-            f.write(requests.get(media_url).content)
+            f.write(requests.get(file_url).content)
     elif file_type == "VIDEO":
         with open(file_type + ".mp4", "wb") as f:
-            f.write(requests.get(media_url).content)
+            f.write(requests.get(file_url).content)
     elif file_type == "REELS":
         with open(file_type + ".mp4", "wb") as f:
-            f.write(requests.get(media_url).content)
+            f.write(requests.get(file_url).content)
     elif file_type == "STORY":
         with open(file_type + ".jpg", "wb") as f:
-            f.write(requests.get(media_url).content)
+            f.write(requests.get(file_url).content)
     elif file_type == "IGTV":
         with open(file_type + ".mp4", "wb") as f:
-            f.write(requests.get(media_url).content)
+            f.write(requests.get(file_url).content)
 
 # تابع برای دریافت دستورات را تعریف کنیم
-def handle_command(update):
-    command = update.message.text
+@bot.message_handler(commands=["start"])
+def handle_start(message):
+    # پیام خوش آمدگویی را ارسال کنیم.
+    bot.send_message(message.chat.id, "سلام! من ربات دانلود ریلز و استوری و پست اینستاگرام هستم. برای دانلود محتوا، لینک آن را به من ارسال کنید.")
 
-    if command == "/help":
-        bot.send_message(update.chat_id, "این ربات به شما امکان می دهد تا محتوای اینستاگرام را دانلود کنید. برای دانلود محتوا، لینک آن را به من ارسال کنید.")
-    elif command == "/about":
-        bot.send_message(update.chat_id, "این ربات توسط [نام توسعه دهنده] ساخته شده است. برای اطلاعات بیشتر، به [لینک وب سایت توسعه دهنده] مراجعه کنید.")
-    else:
-        # لینک محتوا را از پیام دریافت کنیم
-        media_url = update.message.text
-
-        # محتوا را دانلود کنیم
-        media_info = get_media_info(media_url)
-        if media_info is not None:
-            download_media(media_info)
-            bot.send_message(update.chat_id, "محتوا با موفقیت دانلود شد.")
+@bot.message_handler(func=lambda message: True)
+def handle_text(message):
+    # URL محتوا را دریافت کنید و سپس آن را دانلود کنید.
+    media_info = get_media_info(message.text)
+    if media_info is not None:
+        download_media(media_info)
 
 # تابع برای شروع ربات را تعریف کنیم
 def start():
