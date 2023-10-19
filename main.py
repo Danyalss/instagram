@@ -4,7 +4,7 @@ import telebot
 import time
 
 # اطلاعات ربات را تعریف کنیم
-bot = telebot.TeleBot("YOUR_BOT_TOKEN")
+bot = telebot.TeleBot("6583320212:AAHGM6UqfTdHoZjLDmr4RTkTglwpMhwx4N4")
 
 # تابع برای دریافت اطلاعات رسانه را تعریف کنیم
 def get_media_info(media_url):
