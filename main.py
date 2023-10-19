@@ -50,18 +50,18 @@ def download_media(media_info):
             f.write(requests.get(media_info["media_url"]).content)
 
 def handle_command(update):
-    command = update.message.text
+    command = update.message.text
 
-    if command == "/help":
-        bot.send_message(update.chat_id, "این ربات به شما امکان می دهد تا محتوای اینستاگرام را دانلود کنید. برای دانلود محتوا، لینک آن را به من ارسال کنید.")
-    elif command == "/about":
-        bot.send_message(update.chat_id, "این ربات توسط [نام توسعه دهنده] ساخته شده است. برای اطلاعات بیشتر، به [لینک وب سایت توسعه دهنده] مراجعه کنید.")
-    else:
-        bot.send_message(update.chat_id, "دستور نامعتبر")
+    if command == "/help":
+        bot.send_message(update.chat_id, "این ربات به شما امکان می دهد تا محتوای اینستاگرام را دانلود کنید. برای دانلود محتوا، لینک آن را به من ارسال کنید.")
+    elif command == "/about":
+        bot.send_message(update.chat_id, "این ربات توسط [نام توسعه دهنده] ساخته شده است. برای اطلاعات بیشتر، به [لینک وب سایت توسعه دهنده] مراجعه کنید.")
+    else:
+        bot.send_message(update.chat_id, "دستور نامعتبر")
 
 def main():
-    # ربات را در حالت polling اجرا کنیم.
-    bot.polling()
+    # ربات را در حالت polling اجرا کنیم.
+    bot.polling()
 
 if __name__ == "__main__":
-    main()
+    main()
