@@ -15,39 +15,39 @@ def handle_message(update):
     # لینک محتوا را از پیام دریافت کنیم.
     media_url = update.message.text
 
-    # محتوا را دانلود کنیم.
-    media_info = get_media_info(media_url)
-    if media_info is not None:
-        download_media(media_info)
-        bot.send_message(update.chat_id, "محتوا با موفقیت دانلود شد.")
+    # محتوا را دانلود کنیم.
+    media_info = get_media_info(media_url)
+    if media_info is not None:
+        download_media(media_info)
+        bot.send_message(update.chat_id, "محتوا با موفقیت دانلود شد.")
 
 def get_media_info(media_url):
-    response = requests.get(media_url)
-    if response.status_code == 200:
-        data = json.loads(response.content)
-        return data
-    else:
-        return None
+    response = requests.get(media_url)
+    if response.status_code == 200:
+        data = json.loads(response.content)
+        return data
+    else:
+        return None
 
 def download_media(media_info):
-    file_type = media_info["media_type"]
-    file_url = media_info["media_url"]
+    file_type = media_info["media_type"]
+    file_url = media_info["media_url"]
 
-    if file_type == "IMAGE":
-        with open(file_type + ".jpg", "wb") as f:
-           f.write(requests.get(media_info["media_url"]).content)
-    elif file_type == "VIDEO":
-        with open(file_type + ".mp4", "wb") as f:
-           f.write(requests.get(media_info["media_url"]).content)
-    elif file_type == "REELS":
-        with open(file_type + ".mp4", "wb") as f:
-           f.write(requests.get(media_info["media_url"]).content)
-    elif file_type == "STORY":
-        with open(file_type + ".jpg", "wb") as f:
-           f.write(requests.get(media_info["media_url"]).content)
-    elif file_type == "IGTV":
-        with open(file_type + ".mp4", "wb") as f:
-           f.write(requests.get(media_info["media_url"]).content)
+    if file_type == "IMAGE":
+        with open(file_type + ".jpg", "wb") as f:
+            f.write(requests.get(media_info["media_url"]).content)
+    elif file_type == "VIDEO":
+        with open(file_type + ".mp4", "wb") as f:
+            f.write(requests.get(media_info["media_url"]).content)
+    elif file_type == "REELS":
+        with open(file_type + ".mp4", "wb") as f:
+            f.write(requests.get(media_info["media_url"]).content)
+    elif file_type == "STORY":
+        with open(file_type + ".jpg", "wb") as f:
+            f.write(requests.get(media_info["media_url"]).content)
+    elif file_type == "IGTV":
+        with open(file_type + ".mp4", "wb") as f:
+            f.write(requests.get(media_info["media_url"]).content)
 
 def handle_command(update):
     command = update.message.text
