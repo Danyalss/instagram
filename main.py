@@ -43,7 +43,7 @@ def error(update: Update, context: CallbackContext) -> None:
 
 # Main function where we initialize handlers and start the bot
 def main():
-    updater = Updater(6583320212:AAGci8mHu1_ctX1OIQd2rlvqHM-11FIGsZ4, use_context=True)
+    updater = Updater("6583320212:AAGci8mHu1_ctX1OIQd2rlvqHM-11FIGsZ4", use_context=True)
     dp = updater.dispatcher
 
     # Handlers for Telegram commands
