@@ -1,61 +1,65 @@
-import requests
-import json
-import telebot
-import time
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram.ext import (
+    Updater,
+    CommandHandler,
+    CallbackQueryHandler,
+    CallbackContext,
+    MessageHandler,
+    Filters
+)
+import logging
 
-# اطلاعات ربات را تعریف کنیم
-bot = telebot.TeleBot("6583320212:AAHGM6UqfTdHoZjLDmr4RTkTglwpMhwx4N4")
+# Configure logging
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                     level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-# تابع برای دریافت اطلاعات رسانه را تعریف کنیم
-def get_media_info(media_url):
-    response = requests.get(media_url)
+# Insert your bot's token here
+TOKEN = 'YOUR_BOT_TOKEN'
 
-    if response.status_code == 200:
-        data = json.loads(response.content)
-        return data
-    else:
-        return None
+# Replace this with your bot's username
+BOT_USERNAME = 'Dd_instagrambot'
 
-# تابع برای دانلود رسانه را تعریف کنیم
-def download_media(media_info):
-    file_type = media_info["media_type"]
-    file_url = media_info["media_url"]
+def start(update: Update, context: CallbackContext) -> None:
+    keyboard = [
+        [InlineKeyboardButton("افزودن به گروه به عنوان مدیر", callback_data='add_to_group')]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    update.message.reply_text('لطفاً گزینه مورد نظر را انتخاب کنید:', reply_markup=reply_markup)
 
-    if file_type == "IMAGE":
-        with open(file_type + ".jpg", "wb") as f:
-            f.write(requests.get(file_url).content)
-    elif file_type == "VIDEO":
-        with open(file_type + ".mp4", "wb") as f:
-            f.write(requests.get(file_url).content)
-    elif file_type == "REELS":
-        with open(file_type + ".mp4", "wb") as f:
-            f.write(requests.get(file_url).content)
-    elif file_type == "STORY":
-        with open(file_type + ".jpg", "wb") as f:
-            f.write(requests.get(file_url).content)
-    elif file_type == "IGTV":
-        with open(file_type + ".mp4", "wb") as f:
-            f.write(requests.get(file_url).content)
+def button(update: Update, context: CallbackContext) -> None:
+    query = update.callback_query
+    query.answer()
+    # Add your logic for different callback_data values here
+    if query.data == 'add_to_group':
+        query.message.reply_text(
+            f'برای افزودن بات به گروه خود به عنوان مدیر، از لینک زیر استفاده کنید:\nt.me/{BOT_USERNAME}?startgroup=true'
+        )
 
-# تابع برای دریافت دستورات را تعریف کنیم
-@bot.message_handler(commands=["start"])
-def handle_start(message):
-    # پیام خوش آمدگویی را ارسال کنیم.
-    bot.send_message(message.chat.id, "سلام! من ربات دانلود ریلز و استوری و پست اینستاگرام هستم. برای دانلود محتوا، لینک آن را به من ارسال کنید.")
+# In case of error this function will be called
+def error(update: Update, context: CallbackContext) -> None:
+    """Log Errors caused by Updates."""
+    logger.error('Update "%s" caused error "%s"', update, context.error)
 
-@bot.message_handler(func=lambda message: True)
-def handle_text(message):
-    # URL محتوا را دریافت کنید و سپس آن را دانلود کنید.
-    media_info = get_media_info(message.text)
-    if media_info is not None:
-        download_media(media_info)
+# Main function where we initialize handlers and start the bot
+def main():
+    updater = Updater(6583320212:AAGci8mHu1_ctX1OIQd2rlvqHM-11FIGsZ4, use_context=True)
+    dp = updater.dispatcher
 
-# تابع برای شروع ربات را تعریف کنیم
-def start():
-    # ربات را در حالت polling اجرا کنیم
-    bot.polling()
+    # Handlers for Telegram commands
+    dp.add_handler(CommandHandler('start', start))
+    dp.add_handler(CallbackQueryHandler(button))
 
-# تابع اصلی را تعریف کنیم
-if __name__ == "__main__":
-    # ربات را شروع کنیم
-    start()
+    # Log all errors
+    dp.add_error_handler(error)
+
+    # Start the Bot
+    updater.start_polling()
+
+    # Run the bot until you press Ctrl-C or the process receives SIGINT,
+    # SIGTERM or SIGABRT. This should be used most of the time, since
+    # start_polling() is non-blocking and will stop the bot gracefully.
+    updater.idle()
+
+if __name__ == '__main__':
+    main()
