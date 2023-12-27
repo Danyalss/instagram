@@ -20,7 +20,7 @@ def check_status(update: Update, context: CallbackContext):
                 status_message = "افلاین است"
 
             # پیامی ارسال کنید که وضعیت را گزارش می‌دهد
-            update.message.reply_text(f"کاربر {status_message}")
+            update.message.reply_text(f"کاربر {user_status}")
 
         except Exception as e:
             # در صورت بروز خطا، پیام خطا پرینت شود.
