@@ -1,47 +1,54 @@
-from telegram import Update, Bot
-from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandler, Filters
+import os
+import subprocess
+import tempfile
+from telegram import Update, InputFile
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 
-def check_status(update: Update, context: CallbackContext):
-    msg = update.message.reply_to_message
+TOKEN = "YOUR_BOT_TOKEN"
 
-    # اطمینان حاصل کنید که پیام یک تگ است.
-    if msg:
-        user_id = msg.from_user.id
-        chat_id = update.message.chat_id
-        
-        try:
-            user_member = context.bot.get_chat_member(chat_id, user_id)
-            user_status = user_member.status
+# The Instagram webpage URL that you want to download posts from
+INSTAGRAM_WEBPAGE_URL = "https://www.instagram.com/explore/tags/your-hashtag/"
 
-            # بر اساس وضعیت تعیین می‌کنیم که کاربر آنلاین است یا نه
-            if user_status in ['online', 'recently']:
-                status_message = "انلاین است"
-            else:
-                status_message = "افلاین است"
+def install_phantomjs():
+    subprocess.check_output("sudo apt-get install phantomjs", shell=True)
 
-            # پیامی ارسال کنید که وضعیت را گزارش می‌دهد
-            update.message.reply_text(f"کاربر {user_status}")
+def download_instagram_webpage():
+    temp_dir = tempfile.mkdtemp()
+    os.chdir(temp_dir)
+    subprocess.check_output(["phantomjs", "--ssl-protocol=any", "--ignore-ssl-errors=true", "/path/to/instagram_webpage_renderer.js", INSTAGRAM_WEBPAGE_URL])
+    return temp_dir
 
-        except Exception as e:
-            # در صورت بروز خطا، پیام خطا پرینت شود.
-            print(f"خطا: {e}")
-            update.message.reply_text("خطا در دریافت وضعیت کاربر.")
-    else:
-        update.message.reply_text("لطفاً یک پیام را برای بررسی وضعیت تگ کنید.")
+def send_downloaded_image(update: Update, context: CallbackContext):
+    temp_dir = download_instagram_webpage()
+    with open("temp.jpg", "rb") as img:
+        context.bot.send_photo(chat_id=update.effective_chat.id, photo=img)
+    os.remove("temp.jpg")
+    os.rmdir(temp_dir)
 
 def main():
-    # توکن ربات خود را اینجا قرار دهید
-    updater = Updater("6583320212:AAGci8mHu1_ctX1OIQd2rlvqHM-11FIGsZ4", use_context=True)
+    try:
+        install_phantomjs()
+    except Exception as e:
+        print(f"PhantomJS installation failed: {e}")
+        return
 
-    dp = updater.dispatcher
+    updater = Updater(TOKEN)
 
-    # هندلر برای پاسخ به تگ‌های پیام
-    dp.add_handler(MessageHandler(Filters.reply & Filters.text, check_status))
+    dispatcher = updater.dispatcher
 
-    # شروع نظرخواهی از سرور تلگرام
+    def start(update: Update, context: CallbackContext):
+        update.message.reply_text('Hi! Use /download to download the latest photo from Instagram.')
+
+    def download(update: Update, context: CallbackContext):
+        send_downloaded_image(update, context)
+
+    start_handler = CommandHandler("start", start)
+    download_handler = CommandHandler("download", download)
+
+    dispatcher.add_handler(start_handler)
+    dispatcher.add_handler(download_handler)
+
     updater.start_polling()
-
-    # اجازه دهید ربات تا زمانی که پردازش انجام می‌گیرد، فعال بماند
     updater.idle()
 
 if __name__ == '__main__':
