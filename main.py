@@ -1,52 +1,55 @@
 import os
-import subprocess
-import tempfile
-from telegram import Update, InputFile
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+import requests
+from telegram import Update
+from telegram.ext import Updater, CommandHandler, CallbackContext
+from instapy import InstaPy
 
-TOKEN = "YOUR_BOT_TOKEN"
+# Replace with your own Telegram bot token
+TELEGRAM_BOT_TOKEN = '6583320212:AAGci8mHu1_ctX1OIQd2rlvqHM-11FIGsZ4'
 
-# The Instagram webpage URL that you want to download posts from
-INSTAGRAM_WEBPAGE_URL = "https://www.instagram.com/explore/tags/your-hashtag/"
+# Replace with your own Instagram username and password
+INSTAGRAM_USERNAME = 'danyalsoltani872@gmail.com'
+INSTAGRAM_PASSWORD = 'd/reset/confirm/?uidb36=nzx5l4v&token'
 
-def install_phantomjs():
-    subprocess.check_output("sudo apt-get install phantomjs", shell=True)
+# Create directories to store downloaded images
+os.makedirs('downloads', exist_ok=True)
 
-def download_instagram_webpage():
-    temp_dir = tempfile.mkdtemp()
-    os.chdir(temp_dir)
-    subprocess.check_output(["phantomjs", "--ssl-protocol=any", "--ignore-ssl-errors=true", "/path/to/instagram_webpage_renderer.js", INSTAGRAM_WEBPAGE_URL])
-    return temp_dir
+def start(update: Update, context: CallbackContext) -> None:
+    context.bot.send_message(chat_id=update.effective_chat.id, text='Send me an Instagram post URL to download the image.')
 
-def send_downloaded_image(update: Update, context: CallbackContext):
-    temp_dir = download_instagram_webpage()
-    with open("temp.jpg", "rb") as img:
-        context.bot.send_photo(chat_id=update.effective_chat.id, photo=img)
-    os.remove("temp.jpg")
-    os.rmdir(temp_dir)
+def download_image(url: str) -> str:
+    response = requests.get(url)
+    image_filename = url.split('/')[-1]
+    with open(os.path.join('downloads', image_filename), 'wb') as f:
+        f.write(response.content)
+    return image_filename
 
-def main():
-    try:
-        install_phantomjs()
-    except Exception as e:
-        print(f"PhantomJS installation failed: {e}")
+def download_instagram_image(update: Update, context: CallbackContext) -> None:
+    url = update.message.text
+    if 'instagram.com' not in url:
+        context.bot.send_message(chat_id=update.effective_chat.id, text='Invalid Instagram post URL.')
         return
 
-    updater = Updater(TOKEN)
+    # Log in to Instagram using InstaPy
+    session = InstaPy(username=INSTAGRAM_USERNAME, password=INSTAGRAM_PASSWORD)
+    session.login()
 
+    # Download the image
+    image_filename = download_image(url)
+
+    # Log out of Instagram
+    session.end()
+
+    # Send the downloaded image back to the user
+    context.bot.send_photo(chat_id=update.effective_chat.id, photo=open(os.path.join('downloads', image_filename), 'rb'))
+    os.remove(os.path.join('downloads', image_filename))
+
+def main() -> None:
+    updater = Updater(token=TELEGRAM_BOT_TOKEN, use_context=True)
     dispatcher = updater.dispatcher
 
-    def start(update: Update, context: CallbackContext):
-        update.message.reply_text('Hi! Use /download to download the latest photo from Instagram.')
-
-    def download(update: Update, context: CallbackContext):
-        send_downloaded_image(update, context)
-
-    start_handler = CommandHandler("start", start)
-    download_handler = CommandHandler("download", download)
-
-    dispatcher.add_handler(start_handler)
-    dispatcher.add_handler(download_handler)
+    dispatcher.add_handler(CommandHandler('start', start))
+    dispatcher.add_handler(CommandHandler('download', download_instagram_image))
 
     updater.start_polling()
     updater.idle()
