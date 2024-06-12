@@ -1,6 +1,22 @@
 import json
 from concurrent.futures import ThreadPoolExecutor
 
+import requests
+
+def send_long_message(bot_token, chat_id, long_message, max_length=4096):
+    messages = [long_message[i:i+max_length] for i in range(0, len(long_message), max_length)]
+    for message in messages:
+        url = f"https://api.telegram.org/bot{bot_token}/sendMessage?chat_id={chat_id}&text={message}"
+        response = requests.get(url)
+        if response.status_code != 200:
+            return f"Error: {response.status_code}, message not sent"
+    return "Messages sent successfully"
+
+
+
+
+
+
 def knapsack_worker(upgrades, dp, selected, max_budget, start, end):
     local_dp = dp.copy()
     local_selected = selected.copy()
@@ -57,5 +73,17 @@ upgrades = [
 max_budget = 10000000
 num_threads = 4  # Number of threads to use
 max_profit, selected_upgrades = knapsack(upgrades, max_budget, num_threads)
-print(f"Maximum profit obtainable with a budget of {max_budget} is {max_profit}")
-print(f"Selected upgrades: {', '.join(selected_upgrades)}")
+
+# استفاده از تابع
+my_bot_token = "6583320212:AAErFlhIYmA0Je36piZCnXa_C48Jl31-PCk"
+chat_id = "1663788795"
+
+
+
+print1 = f"Maximum profit obtainable with a budget of {max_budget} is {max_profit}"
+print(print1)
+send_long_message(my_bot_token, chat_id, print1)
+
+print2 = f"Selected upgrades: {', '.join(selected_upgrades)}"
+print(print2)
+send_long_message(my_bot_token, chat_id, long_message)
