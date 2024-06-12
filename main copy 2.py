@@ -86,4 +86,4 @@ send_long_message(my_bot_token, chat_id, print1)
 
 print2 = f"Selected upgrades: {', '.join(selected_upgrades)}"
 print(print2)
-send_long_message(my_bot_token, chat_id, long_message)
+send_long_message(my_bot_token, chat_id, print2)
